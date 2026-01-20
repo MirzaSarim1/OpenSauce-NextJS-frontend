@@ -3,6 +3,7 @@ import { logout } from "@/lib/actions/auth"
 import { redirect } from "next/navigation"
 import Link from "next/link"
 import { prisma } from "@/lib/prisma"
+import Image from "next/image"
 
 export default async function ProfilePage() {
   const session = await auth()
@@ -52,9 +53,11 @@ export default async function ProfilePage() {
             <div className="flex items-center gap-6">
               <div className="relative">
                 {user.image ? (
-                  <img 
+                  <Image 
                     src={user.image} 
                     alt={user.name}
+                    width={96}
+                    height={96}
                     className="h-24 w-24 rounded-full border-4 border-white object-cover shadow-lg"
                   />
                 ) : (

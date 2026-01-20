@@ -1,19 +1,56 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { updateProfile } from "@/lib/actions/profile"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import Image from "next/image"
 
 export default function EditForm({ user }) {
+  const [imagePreview, setImagePreview] = useState(user?.image || null)
+  const [imageRemoved, setImageRemoved] = useState(false)
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [success, setSuccess] = useState(false)
-  const [loading, setLoading] = useState(false)
+  const fileInputRef = useRef(null)
   const router = useRouter()
+
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Image size must be less than 5MB")
+      return
+    }
+
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+    if (!validTypes.includes(file.type)) {
+      alert("Invalid image format. Use JPG, PNG, or WebP")
+      return
+    }
+
+    setImageRemoved(false)
+    
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      setImagePreview(reader.result)
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const handleRemoveImage = () => {
+    setImagePreview(null)
+    setImageRemoved(true)
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""
+    }
+  }
 
   async function handleSubmit(e) {
     e.preventDefault()
     setError(null)
+    setSuccess(false)
     setLoading(true)
 
     const formData = new FormData(e.target)
@@ -43,74 +80,136 @@ export default function EditForm({ user }) {
         Back to Profile
       </Link>
 
-      <div className="rounded-lg bg-white p-8 shadow-lg dark:bg-zinc-800">
-        <h1 className="mb-2 text-3xl font-bold text-zinc-900 dark:text-white">
-          Edit Profile
-        </h1>
+      <div className="rounded-xl bg-white shadow-lg dark:bg-zinc-800">
+        <div className="border-b border-zinc-200 px-6 py-4 dark:border-zinc-700">
+          <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">
+            Edit Profile
+          </h1>
+          <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+            Update your profile information and photo
+          </p>
+        </div>
 
-        {success && (
-          <div className="mb-6 rounded-md bg-green-50 p-4">
-            <p className="text-sm text-green-800">Profile updated! Redirecting...</p>
+        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          <input type="hidden" name="removeImage" value={imageRemoved ? "true" : "false"} />
+          
+          <div className="flex flex-col items-center space-y-4">
+            <div className="relative">
+              <div className="h-32 w-32 overflow-hidden rounded-full bg-gradient-to-br from-orange-400 to-pink-500">
+                {imagePreview ? (
+                  <Image
+                    src={imagePreview}
+                    alt="Profile preview"
+                    width={128}
+                    height={128}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center text-4xl font-bold text-white">
+                    {user?.name?.charAt(0).toUpperCase() || "U"}
+                  </div>
+                )}
+              </div>
+              
+              {imagePreview && (
+                <button
+                  type="button"
+                  onClick={handleRemoveImage}
+                  className="absolute -top-2 -right-2 h-8 w-8 rounded-full bg-red-500 text-white 
+                  hover:bg-red-600 transition-colors flex items-center justify-center shadow-lg cursor-pointer"
+                  title="Remove image"
+                >
+                  ×
+                </button>
+              )}
+            </div>
+
+            <div className="flex flex-col items-center space-y-2">
+              <input
+                ref={fileInputRef}
+                type="file"
+                id="image"
+                name="image"
+                accept="image/jpeg,image/jpg,image/png,image/webp"
+                onChange={handleImageChange}
+                className="hidden"
+              />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="rounded-lg bg-zinc-100 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-200 
+                dark:bg-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-600 transition-colors cursor-pointer"
+              >
+                {imagePreview ? "Change Photo" : "Upload Photo"}
+              </button>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                JPG, PNG or WebP. Max 5MB.
+              </p>
+            </div>
           </div>
-        )}
 
-        {error && (
-          <div className="mb-6 rounded-md bg-red-50 p-4">
-            <p className="text-sm text-red-800">{error}</p>
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-              Name *
+            <label 
+              htmlFor="name" 
+              className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
+            >
+              Display Name *
             </label>
             <input
-              name="name"
               type="text"
+              id="name"
+              name="name"
+              defaultValue={user?.name || ""}
               required
-              defaultValue={user.name}
-              className="mt-1 block w-full rounded-md border border-zinc-300 px-3 py-2 dark:bg-zinc-700 dark:text-white"
+              className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-2.5 text-zinc-900 placeholder-zinc-400 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20 dark:border-zinc-600 dark:bg-zinc-700 dark:text-white dark:placeholder-zinc-500"
+              placeholder="Your display name"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+            <label 
+              htmlFor="bio" 
+              className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
+            >
               Bio
             </label>
             <textarea
+              id="bio"
               name="bio"
+              defaultValue={user?.bio || ""}
               rows={4}
-              defaultValue={user.bio || ""}
-              className="mt-1 block w-full rounded-md border border-zinc-300 px-3 py-2 dark:bg-zinc-700 dark:text-white"
+              className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-2.5 text-zinc-900 placeholder-zinc-400 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20 dark:border-zinc-600 dark:bg-zinc-700 dark:text-white dark:placeholder-zinc-500 resize-none"
               placeholder="Tell us about yourself..."
             />
+            <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+              Write a short bio about yourself (optional)
+            </p>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-              Profile Image URL
-            </label>
-            <input
-              name="image"
-              type="url"
-              defaultValue={user.image || ""}
-              className="mt-1 block w-full rounded-md border border-zinc-300 px-3 py-2 dark:bg-zinc-700 dark:text-white"
-              placeholder="https://example.com/image.jpg"
-            />
-          </div>
+          {error && (
+            <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-800 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400">
+              {error}
+            </div>
+          )}
 
-          <div className="flex gap-4">
+          {success && (
+            <div className="rounded-lg bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-800 dark:bg-green-900/20 dark:border-green-800 dark:text-green-400">
+              Profile updated! Redirecting...
+            </div>
+          )}
+
+          <div className="flex gap-3">
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 rounded-md bg-orange-600 px-4 py-2 text-white hover:bg-orange-700 disabled:opacity-50"
+              className="flex-1 rounded-lg bg-gradient-to-r from-orange-500 to-orange-600 px-4 py-3 font-semibold text-white transition-all 
+              hover:from-orange-600 hover:to-pink-600 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               {loading ? "Saving..." : "Save Changes"}
             </button>
             <Link
               href="/profile"
-              className="rounded-md border border-zinc-300 px-6 py-2 text-center hover:bg-zinc-50 dark:border-zinc-600 dark:hover:bg-zinc-700"
+              className="flex-1 rounded-lg border border-zinc-300 px-4 py-3 text-center font-semibold text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-zinc-600 dark:text-zinc-300 dark:hover:bg-zinc-700"
             >
               Cancel
             </Link>
