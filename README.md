@@ -29,6 +29,8 @@ A modern **Recipe Sharing and Management Platform** built with Next.js 16, featu
 - ✅ **User Profile Management**
   - View profile with user stats (recipes, favorites, reviews, followers)
   - Edit profile (name, bio, profile image)
+  - Profile picture upload via Cloudinary
+  - Image optimization and transformation
   - Account information display
 
 - ✅ **Dashboard**
@@ -76,6 +78,7 @@ A modern **Recipe Sharing and Management Platform** built with Next.js 16, featu
 - **Prisma 7.2.0** - Database ORM
 - **PostgreSQL** - Relational database
 - **bcryptjs** - Password hashing
+- **Cloudinary** - Image upload and optimization
 
 ### DevOps
 - **Docker** - PostgreSQL containerization
@@ -104,21 +107,26 @@ A modern **Recipe Sharing and Management Platform** built with Next.js 16, featu
 
 3. **Set up environment variables**
    
-   Create a `.env` file in the root directory:
+   Create a `.env.local` file in the root directory:
    ```env
-   # Database Configuration
-   DB_USER=postgres
-   DB_PASSWORD=postgres
-   DB_NAME=open_sauce
-   DB_PORT=5432
+   # Database
+   DATABASE_URL="postgresql://open_sauce:open_sauce@localhost:5432/open_sauce"
 
-   # Database URL for Prisma
-   DATABASE_URL="postgresql://postgres:postgres@localhost:5432/open_sauce?schema=public"
-
-   # NextAuth Configuration
-   NEXTAUTH_SECRET="your-generated-secret-here"  # Generate with: openssl rand -base64 32
+   # NextAuth
+   NEXTAUTH_SECRET="your-super-secret-key-change-this-in-production"
    NEXTAUTH_URL="http://localhost:3000"
+
+   # Cloudinary (Get from https://cloudinary.com/console)
+   NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME="your-cloud-name"
+   CLOUDINARY_API_KEY="your-api-key"
+   CLOUDINARY_API_SECRET="your-api-secret"
    ```
+
+   **📝 Getting Cloudinary Credentials:**
+   1. Sign up at [cloudinary.com](https://cloudinary.com)
+   2. Go to Dashboard
+   3. Copy your Cloud Name, API Key, and API Secret
+   4. Paste them into your `.env.local` file
 
 4. **Start PostgreSQL database**
    ```bash
