@@ -56,6 +56,7 @@ model Recipe {
   cookTime      Int
   difficulty    Difficulty @default(MEDIUM)
   image         String?
+  imagePublicId String?
 
   averageRating Float      @default(0) 
   
