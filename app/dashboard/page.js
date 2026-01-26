@@ -19,7 +19,7 @@ export default async function DashboardPage() {
         <form action={logout}>
           <button
             type="submit"
-            className="rounded-md bg-red-600 px-4 py-2 text-white hover:bg-red-700"
+            className="rounded-md bg-red-600 px-4 py-2 text-white hover:bg-red-700 cursor-pointer"
           >
             Sign out
           </button>
@@ -35,10 +35,10 @@ export default async function DashboardPage() {
 
         <div className="mt-6 flex gap-4">
           <Link
-            href="/recipes/create"
+            href="/recipes"
             className="rounded-md bg-zinc-900 px-6 py-2 text-white hover:bg-zinc-800 dark:bg-white dark:text-zinc-900"
           >
-            Create Recipe
+            Browse Recipes
           </Link>
           <Link
             href="/profile"
