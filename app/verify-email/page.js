@@ -1,7 +1,6 @@
 "use client"
 
 import { verifyEmail, resendVerificationCode } from "@/lib/actions/auth"
-import { signIn } from "next-auth/react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useState, useEffect, Suspense } from "react"
 
@@ -82,16 +81,11 @@ function VerifyEmailContent() {
         setError(result.error)
         setLoading(false)
       } else if (result?.success) {
-        setSuccess("Email verified successfully! Logging you in...")
+        setSuccess("Email verified successfully! Redirecting to login...")
         
-        await signIn("credentials", {
-          email: email,
-          redirect: false,
-        })
-
         setTimeout(() => {
-          router.push("/dashboard")
-        }, 1500)
+          router.push("/login")
+        }, 2000)
       }
     } catch (err) {
       setError("Something went wrong. Please try again.")
