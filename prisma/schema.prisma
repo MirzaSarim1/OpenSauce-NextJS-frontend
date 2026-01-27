@@ -32,6 +32,10 @@ model User {
   imagePublicId String?   // Cloudinary public_id for deletion
   bio           String?   // Database type Text is automatic in Prisma
   role          Role      @default(USER)
+
+  emailVerified           Boolean   @default(false)
+  verificationToken       String?
+  verificationTokenExpiry DateTime?
   
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
