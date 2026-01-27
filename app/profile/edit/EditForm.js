@@ -10,7 +10,7 @@ export default function EditForm({ user }) {
   const [imagePreview, setImagePreview] = useState(user?.image || null)
   const [imageRemoved, setImageRemoved] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
+  const [errors, setErrors] = useState({})
   const [success, setSuccess] = useState(false)
   const fileInputRef = useRef(null)
   const router = useRouter()
@@ -19,14 +19,22 @@ export default function EditForm({ user }) {
     const file = e.target.files?.[0]
     if (!file) return
 
+    setErrors(prev => ({ ...prev, image: "" }))
+
     if (file.size > 5 * 1024 * 1024) {
-      alert("Image size must be less than 5MB")
+      setErrors(prev => ({ ...prev, image: "Image size must be less than 5MB" }))
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ""
+      }
       return
     }
 
     const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
     if (!validTypes.includes(file.type)) {
-      alert("Invalid image format. Use JPG, PNG, or WebP")
+      setErrors(prev => ({ ...prev, image: "Invalid image format. Use JPG, PNG, or WebP" }))
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ""
+      }
       return
     }
 
@@ -42,6 +50,7 @@ export default function EditForm({ user }) {
   const handleRemoveImage = () => {
     setImagePreview(null)
     setImageRemoved(true)
+    setErrors(prev => ({ ...prev, image: "" }))
     if (fileInputRef.current) {
       fileInputRef.current.value = ""
     }
@@ -49,7 +58,7 @@ export default function EditForm({ user }) {
 
   async function handleSubmit(e) {
     e.preventDefault()
-    setError(null)
+    setErrors({})
     setSuccess(false)
     setLoading(true)
 
@@ -58,13 +67,13 @@ export default function EditForm({ user }) {
     try {
       const result = await updateProfile(formData)
       if (result?.error) {
-        setError(result.error)
+        setErrors({ form: result.error })
       } else {
         setSuccess(true)
         setTimeout(() => router.push("/profile"), 1500)
       }
     } catch (err) {
-      setError("Something went wrong")
+      setErrors({ form: "Something went wrong" })
     } finally {
       setLoading(false)
     }
@@ -145,6 +154,11 @@ export default function EditForm({ user }) {
               <p className="text-xs text-zinc-500 dark:text-zinc-400">
                 JPG, PNG or WebP. Max 5MB.
               </p>
+              {errors.image && (
+                <p className="text-sm text-red-600 dark:text-red-400 animate-in fade-in slide-in-from-top-1 duration-200">
+                  {errors.image}
+                </p>
+              )}
             </div>
           </div>
 
@@ -186,9 +200,9 @@ export default function EditForm({ user }) {
             </p>
           </div>
 
-          {error && (
+          {errors.form && (
             <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-800 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400">
-              {error}
+              {errors.form}
             </div>
           )}
 

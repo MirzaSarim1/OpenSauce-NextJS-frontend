@@ -9,7 +9,7 @@ export default function RecipeForm({ recipe = null, isEdit = false }) {
   const [imagePreview, setImagePreview] = useState(recipe?.image || null)
   const [imageFile, setImageFile] = useState(null)
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
+  const [errors, setErrors] = useState({})
   const fileInputRef = useRef(null)
   const router = useRouter()
 
@@ -17,14 +17,22 @@ export default function RecipeForm({ recipe = null, isEdit = false }) {
     const file = e.target.files?.[0]
     if (!file) return
 
+    setErrors(prev => ({ ...prev, image: "" }))
+
     if (file.size > 5 * 1024 * 1024) {
-      alert("Image size must be less than 5MB")
+      setErrors(prev => ({ ...prev, image: "Image size must be less than 5MB" }))
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ""
+      }
       return
     }
 
     const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
     if (!validTypes.includes(file.type)) {
-      alert("Invalid image format. Use JPG, PNG, or WebP")
+      setErrors(prev => ({ ...prev, image: "Invalid image format. Use JPG, PNG, or WebP" }))
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ""
+      }
       return
     }
 
@@ -40,6 +48,7 @@ export default function RecipeForm({ recipe = null, isEdit = false }) {
   const handleRemoveImage = () => {
     setImagePreview(null)
     setImageFile(null)
+    setErrors(prev => ({ ...prev, image: "" }))
     if (fileInputRef.current) {
       fileInputRef.current.value = ""
     }
@@ -47,7 +56,7 @@ export default function RecipeForm({ recipe = null, isEdit = false }) {
 
   async function handleSubmit(e) {
     e.preventDefault()
-    setError(null)
+    setErrors({})
     setLoading(true)
 
     const formData = new FormData(e.target)
@@ -64,12 +73,12 @@ export default function RecipeForm({ recipe = null, isEdit = false }) {
         : await createRecipe(formData)
       
       if (result?.error) {
-        setError(result.error)
+        setErrors({ form: result.error })
       } else if (result?.success) {
         router.push(`/recipes/${result.recipeId}`)
       }
     } catch (err) {
-      setError("Something went wrong")
+      setErrors({ form: "Something went wrong" })
     } finally {
       setLoading(false)
     }
@@ -129,7 +138,11 @@ export default function RecipeForm({ recipe = null, isEdit = false }) {
             </button>
           </div>
         ) : (
-          <div className="border-2 border-dashed border-zinc-300 dark:border-zinc-600 rounded-lg p-8 text-center">
+          <div className={`border-2 border-dashed rounded-lg p-8 text-center ${
+            errors.image 
+              ? "border-red-500 dark:border-red-500" 
+              : "border-zinc-300 dark:border-zinc-600"
+          }`}>
             <input
               ref={fileInputRef}
               type="file"
@@ -150,6 +163,11 @@ export default function RecipeForm({ recipe = null, isEdit = false }) {
               JPG, PNG or WebP. Max 5MB.
             </p>
           </div>
+        )}
+        {errors.image && (
+          <p className="mt-2 text-sm text-red-600 dark:text-red-400 animate-in fade-in slide-in-from-top-1 duration-200">
+            {errors.image}
+          </p>
         )}
       </div>
 
@@ -224,9 +242,9 @@ export default function RecipeForm({ recipe = null, isEdit = false }) {
         />
       </div>
 
-      {error && (
+      {errors.form && (
         <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-800 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400">
-          {error}
+          {errors.form}
         </div>
       )}
 
