@@ -3,8 +3,10 @@
 import { login } from "@/lib/actions/auth"
 import Link from "next/link"
 import React, { useState } from "react"
+import { useRouter } from "next/navigation"
 
 export default function LoginPage() {
+  const router = useRouter()
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -70,10 +72,13 @@ export default function LoginPage() {
       const result = await login(formDataObj)
       if (result?.error) {
         setErrors({ form: result.error })
+        setIsLoading(false)
+      } else if (result?.success) {
+        router.push("/")
+        router.refresh()
       }
     } catch (err) {
       setErrors({ form: "Something went wrong" })
-    } finally {
       setIsLoading(false)
     }
   }
