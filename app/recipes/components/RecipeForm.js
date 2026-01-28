@@ -4,6 +4,7 @@ import { useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { createRecipe, updateRecipe } from "@/lib/actions/recipe"
 import IngredientInput from "./IngredientInput"
+import { MAX_FILE_SIZE, ALLOWED_IMAGE_TYPES, CUISINES, ERROR_MESSAGES } from "@/lib/constants"
 
 export default function RecipeForm({ recipe = null, isEdit = false }) {
     const [imagePreview, setImagePreview] = useState(recipe?.image || null)
@@ -19,17 +20,16 @@ export default function RecipeForm({ recipe = null, isEdit = false }) {
 
         setErrors(prev => ({ ...prev, image: "" }))
 
-        if (file.size > 5 * 1024 * 1024) {
-            setErrors(prev => ({ ...prev, image: "Image size must be less than 5MB" }))
+        if (file.size > MAX_FILE_SIZE) {
+            setErrors(prev => ({ ...prev, image: ERROR_MESSAGES.IMAGE_SIZE_EXCEEDED }))
             if (fileInputRef.current) {
                 fileInputRef.current.value = ""
             }
             return
         }
 
-        const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
-        if (!validTypes.includes(file.type)) {
-            setErrors(prev => ({ ...prev, image: "Invalid image format. Use JPG, PNG, or WebP" }))
+        if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+            setErrors(prev => ({ ...prev, image: ERROR_MESSAGES.INVALID_IMAGE_FORMAT }))
             if (fileInputRef.current) {
                 fileInputRef.current.value = ""
             }
@@ -78,7 +78,7 @@ export default function RecipeForm({ recipe = null, isEdit = false }) {
                 router.push(`/recipes/${result.recipeId}`)
             }
         } catch (err) {
-            setErrors({ form: "Something went wrong" })
+            setErrors({ form: err.message })
         } finally {
             setLoading(false)
         }
@@ -231,16 +231,11 @@ export default function RecipeForm({ recipe = null, isEdit = false }) {
                         className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-2.5 text-zinc-900 focus:border-orange-500 
                         focus:outline-none focus:ring-2 focus:ring-orange-500/20 dark:border-zinc-600 dark:bg-zinc-700 dark:text-white cursor-pointer"
                     >
-                        <option value="ITALIAN">Italian</option>
-                        <option value="CHINESE">Chinese</option>
-                        <option value="MEXICAN">Mexican</option>
-                        <option value="INDIAN">Indian</option>
-                        <option value="JAPANESE">Japanese</option>
-                        <option value="THAI">Thai</option>
-                        <option value="AMERICAN">American</option>
-                        <option value="FRENCH">French</option>
-                        <option value="MEDITERRANEAN">Mediterranean</option>
-                        <option value="OTHER">Other</option>
+                        {CUISINES.filter(c => c.value).map(({ value, label }) => (
+                            <option key={value} value={value}>
+                                {label}
+                            </option>
+                        ))}
                     </select>
                 </div>
             </div>

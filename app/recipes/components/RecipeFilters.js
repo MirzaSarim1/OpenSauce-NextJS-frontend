@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation"
 import { useState, useEffect } from "react"
+import { CUISINES } from "@/lib/constants"
 
 export default function RecipeFilters() {
     const router = useRouter()
@@ -81,17 +82,11 @@ export default function RecipeFilters() {
                         value={cuisine}
                         onChange={(e) => handleFilterChange('cuisine', e.target.value)}
                     >
-                        <option value="">All Cuisines</option>
-                        <option value="ITALIAN">Italian</option>
-                        <option value="CHINESE">Chinese</option>
-                        <option value="MEXICAN">Mexican</option>
-                        <option value="INDIAN">Indian</option>
-                        <option value="JAPANESE">Japanese</option>
-                        <option value="THAI">Thai</option>
-                        <option value="AMERICAN">American</option>
-                        <option value="FRENCH">French</option>
-                        <option value="MEDITERRANEAN">Mediterranean</option>
-                        <option value="OTHER">Other</option>
+                        {CUISINES.map(({ value, label }) => (
+                            <option key={value || 'all'} value={value}>
+                                {label}
+                            </option>
+                        ))}
                     </select>
                 </div>
 
