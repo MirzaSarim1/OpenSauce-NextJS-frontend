@@ -1,0 +1,5 @@
+-- CreateEnum
+CREATE TYPE "Cuisine" AS ENUM ('ITALIAN', 'CHINESE', 'MEXICAN', 'INDIAN', 'JAPANESE', 'THAI', 'AMERICAN', 'FRENCH', 'MEDITERRANEAN', 'OTHER');
+
+-- AlterTable
+ALTER TABLE "Recipe" ADD COLUMN     "cuisine" "Cuisine" DEFAULT 'OTHER';
