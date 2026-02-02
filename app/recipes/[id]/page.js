@@ -1,10 +1,15 @@
 import { getRecipe } from "@/lib/actions/recipe"
+import { getReviewsForRecipe, getUserReviewForRecipe } from "@/lib/actions/review"
 import { auth } from "@/lib/auth"
 import { notFound } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
 import DeleteRecipeButton from "../components/DeleteRecipeButton"
 import RecipeDetails from "../components/RecipeDetails"
+import StarRating from "@/app/ratings/components/StarRating"
+import ReviewStats from "@/app/ratings/components/ReviewStats"
+import ReviewForm from "@/app/ratings/components/ReviewForm"
+import ReviewList from "@/app/ratings/components/ReviewList"
 
 export default async function RecipeDetailPage({ params }) {
     const { id } = await params
@@ -17,6 +22,9 @@ export default async function RecipeDetailPage({ params }) {
 
     const isOwner = session?.user?.id === recipe.authorId
 
+    const { reviews } = await getReviewsForRecipe(id, { sortBy: 'newest', limit: 100 })
+    const userReview = await getUserReviewForRecipe(id)
+
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900 py-8">
             <div className="max-w-4xl mx-auto px-4">
@@ -24,7 +32,7 @@ export default async function RecipeDetailPage({ params }) {
                     href="/recipes" 
                     className="inline-flex items-center text-zinc-900 dark:text-white hover:text-zinc-700 dark:hover:text-zinc-300 mb-6 font-medium"
                 >
-                <i className="fa fa-arrow-left px-2" aria-hidden="true"></i>
+                    <i className="fa fa-arrow-left px-2" aria-hidden="true"></i>
                     Back to Recipes
                 </Link>
 
@@ -47,6 +55,19 @@ export default async function RecipeDetailPage({ params }) {
                                 <h1 className="text-3xl font-bold text-zinc-900 dark:text-white mb-2">
                                     {recipe.title}
                                 </h1>
+                                
+                                <div className="flex items-center gap-3 mb-3">
+                                    <StarRating rating={recipe.averageRating} readonly size="md" />
+                                    <span className="text-lg font-semibold text-zinc-900 dark:text-white">
+                                        {recipe.averageRating > 0 ? recipe.averageRating.toFixed(1) : 'No ratings yet'}
+                                    </span>
+                                    {recipe._count.reviews > 0 && (
+                                        <span className="text-sm text-zinc-600 dark:text-zinc-400">
+                                            ({recipe._count.reviews} {recipe._count.reviews === 1 ? 'review' : 'reviews'})
+                                        </span>
+                                    )}
+                                </div>
+
                                 <div className="flex items-center gap-4 text-sm text-zinc-600 dark:text-zinc-400">
                                     <div className="flex items-center gap-2">
                                         {recipe.author.image ? (
@@ -111,37 +132,56 @@ export default async function RecipeDetailPage({ params }) {
 
                 <RecipeDetails recipe={recipe} />
 
-                {recipe._count.reviews > 0 && (
-                    <div className="bg-white dark:bg-zinc-800 rounded-lg shadow p-6 mt-6">
-                        <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-4">
-                            Reviews ({recipe._count.reviews})
-                        </h2>
-                        <div className="space-y-4">
-                            {recipe.reviews.map((review) => (
-                                <div key={review.id} className="border-b border-zinc-200 dark:border-zinc-700 pb-4 last:border-b-0">
-                                    <div className="flex items-center gap-2 mb-2">
-                                        {review.user.image ? (
-                                            <Image
-                                                src={review.user.image}
-                                                alt={review.user.name}
-                                                width={32}
-                                                height={32}
-                                                className="rounded-full"
-                                            />
-                                        ) : (
-                                            <div className="w-8 h-8 bg-zinc-300 dark:bg-zinc-600 rounded-full" />
-                                        )}
-                                        <span className="font-semibold text-zinc-900 dark:text-white">{review.user.name}</span>
-                                        <span className="text-yellow-500">
-                                            {"⭐".repeat(review.rating)}
-                                        </span>
-                                    </div>
-                                    <p className="text-zinc-700 dark:text-zinc-300">{review.comment}</p>
-                                </div>
-                            ))}
+                <div className="mt-8 space-y-6">
+                    <h2 className="text-2xl font-bold text-zinc-900 dark:text-white">
+                        Ratings & Reviews
+                    </h2>
+
+                    <ReviewStats reviews={reviews} averageRating={recipe.averageRating} />
+
+                    {session?.user && !userReview && !isOwner && (
+                        <div className="bg-white dark:bg-zinc-800 rounded-lg p-6 border border-zinc-200 dark:border-zinc-700">
+                            <h3 className="text-lg font-semibold text-zinc-900 dark:text-white mb-4">
+                                Write a Review
+                            </h3>
+                            <ReviewForm recipeId={recipe.id} />
                         </div>
-                    </div>
-                )}
+                    )}
+
+                    {session?.user && userReview && (
+                        <div className="bg-white dark:bg-zinc-800 rounded-lg p-6 border border-zinc-200 dark:border-zinc-700">
+                            <h3 className="text-lg font-semibold text-zinc-900 dark:text-white mb-4">
+                                Your Review
+                            </h3>
+                            <ReviewForm recipeId={recipe.id} existingReview={userReview} />
+                        </div>
+                    )}
+
+                    {session?.user && isOwner && (
+                        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                            <p className="text-sm text-blue-800 dark:text-blue-300">
+                                You cannot review your own recipe.
+                            </p>
+                        </div>
+                    )}
+
+                    {!session?.user && reviews.length > 0 && (
+                        <div className="bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-4">
+                            <p className="text-sm text-zinc-700 dark:text-zinc-300">
+                                <Link href="/login" className="text-orange-600 dark:text-orange-400 hover:underline font-semibold">
+                                    Log in
+                                </Link>
+                                {' '}to leave a review
+                            </p>
+                        </div>
+                    )}
+
+                    <ReviewList 
+                        initialReviews={reviews} 
+                        currentUserId={session?.user?.id} 
+                        recipeId={recipe.id} 
+                    />
+                </div>
             </div>
         </div>
     )
