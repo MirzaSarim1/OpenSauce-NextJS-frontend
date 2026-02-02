@@ -22,6 +22,19 @@ enum TagType {
   GENERIC
 }
 
+enum Cuisine {
+  ITALIAN
+  CHINESE
+  MEXICAN
+  INDIAN
+  JAPANESE
+  THAI
+  AMERICAN
+  FRENCH
+  MEDITERRANEAN
+  OTHER
+}
+
 
 model User {
   id            String    @id @default(cuid())
@@ -61,6 +74,7 @@ model Recipe {
   difficulty    Difficulty @default(MEDIUM)
   image         String?
   imagePublicId String?
+  cuisine       Cuisine?  @default(OTHER)
 
   averageRating Float      @default(0) 
   
