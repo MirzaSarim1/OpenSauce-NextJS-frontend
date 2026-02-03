@@ -1,5 +1,6 @@
 import Image from "next/image"
 import Link from "next/link"
+import StarRating from "@/app/ratings/components/StarRating"
 
 export default function RecipeCard({ recipe }) {
     return (
@@ -24,10 +25,19 @@ export default function RecipeCard({ recipe }) {
                     <h3 className="text-lg font-bold text-zinc-900 dark:text-white mb-2 line-clamp-2">
                         {recipe.title}
                     </h3>
-                    
+
                     <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-3 line-clamp-2">
                         {recipe.description}
                     </p>
+
+                    {recipe.averageRating > 0 && (
+                        <div className="flex items-center gap-2 mb-3">
+                            <StarRating rating={recipe.averageRating} size="sm" readonly />
+                            <span className="text-sm text-zinc-600 dark:text-zinc-400">
+                                {recipe.averageRating.toFixed(1)} ({recipe._count.reviews})
+                            </span>
+                        </div>
+                    )}
 
                     <div className="flex items-center gap-2 mb-3 text-sm text-zinc-600 dark:text-zinc-400">
                         {recipe.author.image ? (
