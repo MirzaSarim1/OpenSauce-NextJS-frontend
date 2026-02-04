@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation"
 import { useState, useEffect } from "react"
-import { CUISINES } from "@/lib/constants"
+import { CUISINES, CATEGORIES, TAGS } from "@/lib/constants"
 
 export default function RecipeFilters() {
     const router = useRouter()
@@ -12,6 +12,8 @@ export default function RecipeFilters() {
     const difficulty = searchParams.get('difficulty') || ''
     const cuisine = searchParams.get('cuisine') || ''
     const sortBy = searchParams.get('sortBy') || 'recent'
+    const category = searchParams.get('category') || ''
+    const tag = searchParams.get('tag') || ''
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -92,6 +94,42 @@ export default function RecipeFilters() {
 
                 <div className="flex-1 min-w-[150px]">
                     <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                        Category
+                    </label>
+                    <select
+                        className="w-full rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-700 px-3 py-2 text-sm text-zinc-900 dark:text-white focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20 cursor-pointer"
+                        value={category}
+                        onChange={(e) => handleFilterChange('category', e.target.value)}
+                    >
+                        <option value="">All Categories</option>
+                        {CATEGORIES.map(cat => (
+                            <option key={cat} value={cat}>
+                                {cat}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+
+                <div className="flex-1 min-w-[150px]">
+                    <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                        Tag
+                    </label>
+                    <select
+                        className="w-full rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-700 px-3 py-2 text-sm text-zinc-900 dark:text-white focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20 cursor-pointer"
+                        value={tag}
+                        onChange={(e) => handleFilterChange('tag', e.target.value)}
+                    >
+                        <option value="">All Tags</option>
+                        {TAGS.map(t => (
+                            <option key={t} value={t}>
+                                {t}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+
+                <div className="flex-1 min-w-[150px]">
+                    <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
                         Sort By
                     </label>
                     <select
@@ -106,7 +144,7 @@ export default function RecipeFilters() {
                 </div>
             </div>
 
-            {(search || difficulty || cuisine) && (
+            {(search || difficulty || cuisine || category || tag) && (
                 <div className="flex justify-end">
                     <button
                         onClick={clearFilters}

@@ -9,6 +9,8 @@ function buildQueryString(params) {
     if (params.cuisine) query.set('cuisine', params.cuisine)
     if (params.search) query.set('search', params.search)
     if (params.sortBy && params.sortBy !== 'recent') query.set('sortBy', params.sortBy)
+    if (params.category) query.set('category', params.category)
+    if (params.tag) query.set('tag', params.tag)
     const queryString = query.toString()
     return queryString ? `&${queryString}` : ''
 }
@@ -20,8 +22,10 @@ export default async function RecipePage({ searchParams }) {
     const cuisine = params.cuisine || undefined
     const search = params.search || undefined
     const sortBy = params.sortBy || 'recent'
+    const category = params.category || undefined
+    const tag = params.tag || undefined
 
-    const { recipes, pagination } = await getRecipes({ page, difficulty, cuisine, search, sortBy })
+    const { recipes, pagination } = await getRecipes({ page, difficulty, cuisine, search, sortBy, category, tag })
 
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900 py-8">
@@ -64,7 +68,7 @@ export default async function RecipePage({ searchParams }) {
                     <div className="flex justify-center gap-2">
                         {pagination.page > 1 && (
                             <Link
-                                href={`/recipes?page=${pagination.page - 1}${buildQueryString({ difficulty, cuisine, search, sortBy })}`}
+                                href={`/recipes?page=${pagination.page - 1}${buildQueryString({ difficulty, cuisine, search, sortBy, category, tag })}`}
                                 className="px-4 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-md hover:bg-zinc-50 dark:hover:bg-zinc-700"
                             >
                                 Previous
@@ -77,7 +81,7 @@ export default async function RecipePage({ searchParams }) {
 
                         {pagination.page < pagination.totalPages && (
                             <Link
-                                href={`/recipes?page=${pagination.page + 1}${buildQueryString({ difficulty, cuisine, search, sortBy })}`}
+                                href={`/recipes?page=${pagination.page + 1}${buildQueryString({ difficulty, cuisine, search, sortBy, category, tag })}`}
                                 className="px-4 py-2 bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 rounded-md hover:bg-zinc-50 dark:hover:bg-zinc-700"
                             >
                                 Next

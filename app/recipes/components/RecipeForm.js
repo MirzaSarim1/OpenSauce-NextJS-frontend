@@ -4,7 +4,7 @@ import { useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { createRecipe, updateRecipe } from "@/lib/actions/recipe"
 import IngredientInput from "./IngredientInput"
-import { MAX_FILE_SIZE, ALLOWED_IMAGE_TYPES, CUISINES, ERROR_MESSAGES } from "@/lib/constants"
+import { MAX_FILE_SIZE, ALLOWED_IMAGE_TYPES, CUISINES, ERROR_MESSAGES, CATEGORIES, TAGS } from "@/lib/constants"
 
 export default function RecipeForm({ recipe = null, isEdit = false }) {
     const [imagePreview, setImagePreview] = useState(recipe?.image || null)
@@ -61,6 +61,14 @@ export default function RecipeForm({ recipe = null, isEdit = false }) {
 
         const formData = new FormData(e.target)
 
+        const categorySelect = e.target.categories
+        const selectedCategories = Array.from(categorySelect.selectedOptions).map(opt => opt.value)
+        formData.set('categories', selectedCategories.join(','))
+
+        const tagSelect = e.target.tags
+        const selectedTags = Array.from(tagSelect.selectedOptions).map(opt => opt.value)
+        formData.set('tags', selectedTags.join(','))
+
         if (imageFile) {
             formData.set('image', imageFile)
         } else if (isEdit && !imageFile) {
@@ -114,6 +122,48 @@ export default function RecipeForm({ recipe = null, isEdit = false }) {
                     className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-2.5 text-zinc-900 placeholder-zinc-400 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20 dark:border-zinc-600 dark:bg-zinc-700 dark:text-white resize-none"
                     placeholder="Brief description of your recipe..."
                 />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label htmlFor="categories" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+                        Categories (Hold Ctrl/Cmd for multiple)
+                    </label>
+                    <select
+                        id="categories"
+                        name="categories"
+                        multiple
+                        defaultValue={recipe?.categories?.map(c => c.name) || []}
+                        className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-2.5 text-zinc-900 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20 dark:border-zinc-600 dark:bg-zinc-700 dark:text-white"
+                        size="4"
+                    >
+                        {CATEGORIES.map(category => (
+                            <option key={category} value={category}>
+                                {category}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+
+                <div>
+                    <label htmlFor="tags" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+                        Tags (Hold Ctrl/Cmd for multiple)
+                    </label>
+                    <select
+                        id="tags"
+                        name="tags"
+                        multiple
+                        defaultValue={recipe?.tags?.map(t => t.name) || []}
+                        className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-2.5 text-zinc-900 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20 dark:border-zinc-600 dark:bg-zinc-700 dark:text-white"
+                        size="4"
+                    >
+                        {TAGS.map(tag => (
+                            <option key={tag} value={tag}>
+                                {tag}
+                            </option>
+                        ))}
+                    </select>
+                </div>
             </div>
 
             <div>
