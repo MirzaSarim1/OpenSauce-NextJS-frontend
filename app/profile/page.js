@@ -178,14 +178,18 @@ export default async function ProfilePage() {
             href="/recipes/create"
             className="rounded-lg border-2 border-zinc-200 bg-white p-4 text-center transition-colors hover:border-orange-500 dark:border-zinc-700 dark:bg-zinc-800"
           >
-            <div className="text-2xl mb-2">📝</div>
+            <div className="mb-2">
+              <i className="fa-solid fa-pen-to-square text-2xl text-orange-500"></i>
+            </div>
             <div className="font-medium text-zinc-900 dark:text-white">Create Recipe</div>
           </Link>
           <Link
             href="/favorites"
             className="rounded-lg border-2 border-zinc-200 bg-white p-4 text-center transition-colors hover:border-orange-500 dark:border-zinc-700 dark:bg-zinc-800"
           >
-            <div className="text-2xl mb-2">⭐</div>
+            <div className="mb-2">
+              <i className="fa-solid fa-star text-2xl text-yellow-500"></i>
+            </div>
             <div className="font-medium text-zinc-900 dark:text-white">My Favorites</div>
           </Link>
         </div>

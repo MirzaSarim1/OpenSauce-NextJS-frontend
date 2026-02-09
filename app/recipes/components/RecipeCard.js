@@ -56,12 +56,20 @@ export default function RecipeCard({ recipe }) {
 
                     <div className="flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400 border-t border-zinc-200 dark:border-zinc-700 pt-3">
                         <div className="flex gap-3">
-                            <span>⏱️ {recipe.prepTime + recipe.cookTime} min</span>
-                            <span className="capitalize">📊 {recipe.difficulty}</span>
+                            <span className="flex items-center gap-1">
+                                <i className="fa-solid fa-clock"></i> {recipe.prepTime + recipe.cookTime} min
+                            </span>
+                            <span className="flex items-center gap-1 capitalize">
+                                <i className="fa-solid fa-chart-simple"></i> {recipe.difficulty}
+                            </span>
                         </div>
                         <div className="flex gap-2">
-                            <span>❤️ {recipe._count.favorites}</span>
-                            <span>💬 {recipe._count.reviews}</span>
+                            <span className="flex items-center gap-1">
+                                <i className="fa-solid fa-heart text-red-500"></i> {recipe._count.favorites}
+                            </span>
+                            <span className="flex items-center gap-1">
+                                <i className="fa-solid fa-comment"></i> {recipe._count.reviews}
+                            </span>
                         </div>
                     </div>
                 </div>

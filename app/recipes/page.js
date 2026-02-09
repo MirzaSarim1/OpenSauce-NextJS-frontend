@@ -30,6 +30,14 @@ export default async function RecipePage({ searchParams }) {
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900 py-8">
             <div className="max-w-7xl mx-auto px-4">
+                <Link 
+                    href="/dashboard"
+                    className="inline-flex items-center gap-2 text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white mb-6 transition-colors"
+                >
+                    <i className="fa-solid fa-arrow-left"></i>
+                    Back to Dashboard
+                </Link>
+
                 <div className="flex items-center justify-between mb-8">
                     <div>
                         <h1 className="text-3xl font-bold text-zinc-900 dark:text-white">
