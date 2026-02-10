@@ -10,6 +10,8 @@ import StarRating from "@/app/ratings/components/StarRating"
 import ReviewStats from "@/app/ratings/components/ReviewStats"
 import ReviewForm from "@/app/ratings/components/ReviewForm"
 import ReviewList from "@/app/ratings/components/ReviewList"
+import FavoriteButton from "../components/FavoriteButton"
+import { checkIsFavorited } from "@/lib/actions/favorite"
 
 export default async function RecipeDetailPage({ params }) {
     const { id } = await params
@@ -22,14 +24,18 @@ export default async function RecipeDetailPage({ params }) {
 
     const isOwner = session?.user?.id === recipe.authorId
 
+    const isFavorited = session?.user?.id
+        ? await checkIsFavorited(recipe.id, session.user.id)
+        : false
+
     const { reviews } = await getReviewsForRecipe(id, { sortBy: 'newest', limit: 100 })
     const userReview = await getUserReviewForRecipe(id)
 
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900 py-8">
             <div className="max-w-4xl mx-auto px-4">
-                <Link 
-                    href="/recipes" 
+                <Link
+                    href="/recipes"
                     className="inline-flex items-center text-zinc-900 dark:text-white hover:text-zinc-700 dark:hover:text-zinc-300 mb-6 font-medium"
                 >
                     <i className="fa fa-arrow-left px-2" aria-hidden="true"></i>
@@ -55,7 +61,7 @@ export default async function RecipeDetailPage({ params }) {
                                 <h1 className="text-3xl font-bold text-zinc-900 dark:text-white mb-2">
                                     {recipe.title}
                                 </h1>
-                                
+
                                 <div className="flex items-center gap-3 mb-3">
                                     <StarRating rating={recipe.averageRating} readonly size="md" />
                                     <span className="text-lg font-semibold text-zinc-900 dark:text-white">
@@ -90,17 +96,27 @@ export default async function RecipeDetailPage({ params }) {
                                 </div>
                             </div>
 
-                            {isOwner && (
-                                <div className="flex gap-2 flex-shrink-0">
-                                    <Link
-                                        href={`/recipes/${recipe.id}/edit`}
-                                        className="px-4 py-2 bg-zinc-900 text-white rounded-md hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
-                                    >
-                                        Edit
-                                    </Link>
-                                    <DeleteRecipeButton recipeId={recipe.id} />
-                                </div>
-                            )}
+                            <div className="flex gap-2 flex-shrink-0">
+                                {session?.user && !isOwner && (
+                                    <FavoriteButton
+                                        recipeId={recipe.id}
+                                        initialIsFavorited={isFavorited}
+                                        showLabel={true}
+                                    />
+                                )}
+
+                                {isOwner && (
+                                    <>
+                                        <Link
+                                            href={`/recipes/${recipe.id}/edit`}
+                                            className="px-4 py-2 bg-zinc-900 text-white rounded-md hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
+                                        >
+                                            Edit
+                                        </Link>
+                                        <DeleteRecipeButton recipeId={recipe.id} />
+                                    </>
+                                )}
+                            </div>
                         </div>
 
                         <p className="text-zinc-700 dark:text-zinc-300 mb-6">{recipe.description}</p>
@@ -176,10 +192,10 @@ export default async function RecipeDetailPage({ params }) {
                         </div>
                     )}
 
-                    <ReviewList 
-                        initialReviews={reviews} 
-                        currentUserId={session?.user?.id} 
-                        recipeId={recipe.id} 
+                    <ReviewList
+                        initialReviews={reviews}
+                        currentUserId={session?.user?.id}
+                        recipeId={recipe.id}
                     />
                 </div>
             </div>

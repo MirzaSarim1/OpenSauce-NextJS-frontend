@@ -321,8 +321,8 @@ export default function RecipeForm({ recipe = null, isEdit = false }) {
                 <button
                     type="submit"
                     disabled={loading}
-                    className="flex-1 rounded-lg bg-gradient-to-r from-orange-500 to-pink-500 px-6 py-3 font-semibold text-white 
-          transition-all hover:from-orange-600 hover:to-pink-600 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                    className="flex-1 rounded-lg bg-gradient-to-r from-orange-500 to-orange-400 px-6 py-3 font-semibold text-white 
+          transition-all hover:from-orange-600 hover:to-orange-500 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 >
                     {loading ? (isEdit ? "Updating Recipe..." : "Creating Recipe...") : (isEdit ? "Update Recipe" : "Create Recipe")}
                 </button>

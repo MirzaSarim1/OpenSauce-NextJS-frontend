@@ -42,7 +42,7 @@ export default function ReviewStats({ reviews, averageRating }) {
                                 
                                 <div className="flex-1 h-2 bg-zinc-200 dark:bg-zinc-700 rounded-full overflow-hidden">
                                     <div
-                                        className="h-full bg-gradient-to-r from-orange-500 to-pink-500 transition-all duration-300"
+                                        className="h-full bg-gradient-to-r from-orange-500 to-orange-400 transition-all duration-300"
                                         style={{ width: `${percentage}%` }}
                                     />
                                 </div>

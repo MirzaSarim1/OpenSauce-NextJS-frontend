@@ -45,7 +45,7 @@ export default async function DashboardPage() {
                   {dashboardData?.recipesCount || 0}
                 </p>
               </div>
-              <div className="h-12 w-12 rounded-full bg-gradient-to-r from-orange-500 to-pink-500 flex items-center justify-center">
+              <div className="h-12 w-12 rounded-full bg-gradient-to-r from-orange-500 to-orange-400 flex items-center justify-center">
                 <i className="fa-solid fa-book text-white text-2xl"></i>
               </div>
             </div>
@@ -101,7 +101,7 @@ export default async function DashboardPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Link
               href="/recipes/create"
-              className="flex items-center gap-3 p-4 rounded-lg bg-gradient-to-r from-orange-500 to-pink-500 text-white hover:from-orange-600 hover:to-pink-600 transition-all"
+              className="flex items-center gap-3 p-4 rounded-lg bg-gradient-to-r from-orange-500 to-orange-400 text-white hover:from-orange-600 hover:to-orange-500 transition-all"
             >
               <i className="fa-solid fa-plus text-xl"></i>
               <span className="font-semibold">Create Recipe</span>
@@ -178,7 +178,7 @@ export default async function DashboardPage() {
         {(!dashboardData?.recentRecipes || dashboardData.recentRecipes.length === 0) && (
           <div className="bg-white dark:bg-zinc-800 rounded-xl shadow-lg p-12 border border-zinc-200 dark:border-zinc-700 text-center">
             <div className="max-w-md mx-auto">
-              <div className="h-20 w-20 rounded-full bg-gradient-to-r from-orange-500 to-pink-500 flex items-center justify-center mx-auto mb-4">
+              <div className="h-20 w-20 rounded-full bg-gradient-to-r from-orange-500 to-orange-400 flex items-center justify-center mx-auto mb-4">
                 <i className="fa-solid fa-book text-white text-4xl"></i>
               </div>
               <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-2">
@@ -189,7 +189,7 @@ export default async function DashboardPage() {
               </p>
               <Link
                 href="/recipes/create"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-500 to-pink-500 text-white rounded-lg hover:from-orange-600 hover:to-pink-600 font-semibold transition-all"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-500 to-orange-400 text-white rounded-lg hover:from-orange-600 hover:to-orange-500 font-semibold transition-all"
               >
                 <i className="fa-solid fa-plus"></i>
                 Create Your First Recipe
