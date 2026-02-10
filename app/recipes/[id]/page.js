@@ -12,6 +12,7 @@ import ReviewForm from "@/app/ratings/components/ReviewForm"
 import ReviewList from "@/app/ratings/components/ReviewList"
 import FavoriteButton from "../components/FavoriteButton"
 import { checkIsFavorited } from "@/lib/actions/favorite"
+import ShareButton from "../components/ShareButton"
 
 export default async function RecipeDetailPage({ params }) {
     const { id } = await params
@@ -104,6 +105,8 @@ export default async function RecipeDetailPage({ params }) {
                                         showLabel={true}
                                     />
                                 )}
+
+                                <ShareButton recipe={recipe} />
 
                                 {isOwner && (
                                     <>
