@@ -98,7 +98,7 @@ export default async function DashboardPage() {
           <h2 className="text-xl font-bold text-zinc-900 dark:text-white mb-4">
             Quick Actions
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Link
               href="/recipes/create"
               className="flex items-center gap-3 p-4 rounded-lg bg-gradient-to-r from-orange-500 to-orange-400 text-white hover:from-orange-600 hover:to-orange-500 transition-all"
@@ -112,6 +112,13 @@ export default async function DashboardPage() {
             >
               <i className="fa-solid fa-search text-xl text-zinc-700 dark:text-zinc-300"></i>
               <span className="font-semibold text-zinc-900 dark:text-white">Browse Recipes</span>
+            </Link>
+            <Link
+              href="/favorites"
+              className="flex items-center gap-3 p-4 rounded-lg border-2 border-zinc-300 dark:border-zinc-600 hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-all"
+            >
+              <i className="fa-solid fa-heart text-xl text-red-500"></i>
+              <span className="font-semibold text-zinc-900 dark:text-white">My Favorites</span>
             </Link>
             <Link
               href="/profile"
