@@ -91,8 +91,22 @@ export default function LoginPage() {
         </h2>
 
         {errors.form && (
-          <div className="rounded-md bg-red-50 p-4 dark:bg-red-900/20">
-            <p className="text-sm text-red-800 dark:text-red-400 text-center">{errors.form}</p>
+          <div className="space-y-3">
+            <div className="rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 px-4 py-3">
+              <p className="text-sm text-red-800 dark:text-red-400 text-center">
+                {errors.form}
+              </p>
+            </div>
+
+            <div className="rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 px-4 py-3">
+              <p className="text-sm font-semibold text-blue-800 dark:text-blue-400 mb-2">
+                💡 Troubleshooting Tips:
+              </p>
+              <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-1.5 ml-4 list-disc">
+                <li>Check for typos in your email address</li>
+                <li>Make sure Caps Lock is off</li>
+              </ul>
+            </div>
           </div>
         )}
 
