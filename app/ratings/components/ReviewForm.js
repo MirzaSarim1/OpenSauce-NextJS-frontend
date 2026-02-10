@@ -91,7 +91,7 @@ export default function ReviewForm({ recipeId, existingReview = null }) {
             <button
                 type="submit"
                 disabled={loading || rating === 0}
-                className="w-full rounded-lg bg-gradient-to-r from-orange-500 to-pink-500 px-6 py-3 font-semibold text-white transition-all hover:from-orange-600 hover:to-pink-600 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                className="w-full rounded-lg bg-gradient-to-r from-orange-500 to-orange-400 px-6 py-3 font-semibold text-white transition-all hover:from-orange-600 hover:to-orange-500 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
                 {loading ? (isEdit ? "Updating..." : "Submitting...") : (isEdit ? "Update Review" : "Submit Review")}
             </button>
