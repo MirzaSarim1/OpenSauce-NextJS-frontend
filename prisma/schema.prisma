@@ -35,124 +35,130 @@ enum Cuisine {
   OTHER
 }
 
+enum NotificationType {
+  FOLLOW
+  FAVORITE
+  REVIEW
+  SYSTEM
+}
 
 model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
+  id            String  @id @default(cuid())
+  email         String  @unique
   password      String
   name          String?
   image         String?
-  imagePublicId String?   // Cloudinary public_id for deletion
-  bio           String?   // Database type Text is automatic in Prisma
-  role          Role      @default(USER)
+  imagePublicId String? // Cloudinary public_id for deletion
+  bio           String? // Database type Text is automatic in Prisma
+  role          Role    @default(USER)
 
   emailVerified           Boolean   @default(false)
   verificationToken       String?
   verificationTokenExpiry DateTime?
-  
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
 
-  recipes       Recipe[]
-  reviews       Review[]
-  favorites     Favorite[]
-  
-  followedBy    Follow[]  @relation("followedBy")
-  following     Follow[]  @relation("following")
-  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  recipes   Recipe[]
+  reviews   Review[]
+  favorites Favorite[]
+
+  followedBy Follow[] @relation("followedBy")
+  following  Follow[] @relation("following")
+
   notifications Notification[]
 }
 
 model Recipe {
-  id            String     @id @default(cuid())
-  title         String
-  description   String
-  instructions  String     
-  
+  id           String @id @default(cuid())
+  title        String
+  description  String
+  instructions String
+
   prepTime      Int
   cookTime      Int
   difficulty    Difficulty @default(MEDIUM)
   image         String?
   imagePublicId String?
-  cuisine       Cuisine?  @default(OTHER)
+  cuisine       Cuisine?   @default(OTHER)
 
-  averageRating Float      @default(0) 
-  
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
+  averageRating Float @default(0)
 
-  authorId      String
-  author        User       @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  ingredients   RecipeIngredient[]
-  reviews       Review[]
-  favorites     Favorite[]
-  tags          Tag[]
-  categories    Category[]
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  ingredients RecipeIngredient[]
+  reviews     Review[]
+  favorites   Favorite[]
+  tags        Tag[]
+  categories  Category[]
 
   @@index([authorId])
   @@index([title])
 }
 
 model Ingredient {
-  id        String             @id @default(cuid())
-  name      String             @unique
-  recipes   RecipeIngredient[]
+  id      String             @id @default(cuid())
+  name    String             @unique
+  recipes RecipeIngredient[]
 }
 
 model RecipeIngredient {
-  id            String     @id @default(cuid())
-  
-  recipeId      String
-  recipe        Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade)
-  
-  ingredientId  String
-  ingredient    Ingredient @relation(fields: [ingredientId], references: [id])
-  
-  quantity      String
-  unit          String?
+  id String @id @default(cuid())
+
+  recipeId String
+  recipe   Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+  ingredientId String
+  ingredient   Ingredient @relation(fields: [ingredientId], references: [id])
+
+  quantity String
+  unit     String?
 
   @@index([recipeId])
   @@index([ingredientId])
 }
 
 model Category {
-  id        String   @id @default(cuid())
-  name      String   @unique
-  recipes   Recipe[]
+  id      String   @id @default(cuid())
+  name    String   @unique
+  recipes Recipe[]
 }
 
 model Tag {
-  id        String   @id @default(cuid())
-  name      String   @unique
-  type      TagType  @default(GENERIC)
-  recipes   Recipe[]
+  id      String   @id @default(cuid())
+  name    String   @unique
+  type    TagType  @default(GENERIC)
+  recipes Recipe[]
 }
 
 model Review {
-  id        String   @id @default(cuid())
-  rating    Int
-  comment   String?
-  
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  recipeId  String
-  recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  id      String  @id @default(cuid())
+  rating  Int
+  comment String?
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  recipeId String
+  recipe   Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
 
-  @@unique([userId, recipeId]) 
+  @@unique([userId, recipeId])
   @@index([recipeId]) // Faster to load reviews for a recipe
   @@index([userId])
 }
 
 model Favorite {
-  userId    String
-  recipeId  String
-  
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  userId   String
+  recipeId String
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
 
   assignedAt DateTime @default(now())
 
@@ -163,27 +169,29 @@ model Favorite {
 model Follow {
   followerId  String
   followingId String
-  
-  follower    User   @relation("following", fields: [followerId], references: [id], onDelete: Cascade)
-  following   User   @relation("followedBy", fields: [followingId], references: [id], onDelete: Cascade)
 
-  createdAt   DateTime @default(now())
+  follower  User @relation("following", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("followedBy", fields: [followingId], references: [id], onDelete: Cascade)
 
-  @@id([followerId, followingId]) 
+  createdAt DateTime @default(now())
+
+  @@id([followerId, followingId])
   @@index([followerId])
   @@index([followingId])
 }
 
 model Notification {
-  id        String   @id @default(cuid())
+  id        String           @id @default(cuid())
   userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  type      NotificationType
+  title     String
   message   String
-  link      String?
-  isRead    Boolean  @default(false)
-  
-  createdAt DateTime @default(now())
-  
-  @@index([userId])
+  data      Json?
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read])
+  @@index([createdAt])
 }
