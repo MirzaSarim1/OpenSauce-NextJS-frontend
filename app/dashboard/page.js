@@ -4,6 +4,7 @@ import { getDashboardData } from "@/lib/actions/dashboard"
 import { redirect } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
+import NotificationBell from "@/app/components/NotificationBell"
 
 export default async function DashboardPage() {
   const session = await auth()
@@ -25,14 +26,17 @@ export default async function DashboardPage() {
             Welcome back, {session.user.name}!
           </p>
         </div>
-        <form action={logout}>
-          <button
-            type="submit"
-            className="rounded-lg bg-red-600 px-4 py-2 text-white hover:bg-red-700 transition-colors cursor-pointer"
-          >
-            Sign out
-          </button>
-        </form>
+        <div className="flex items-center gap-4">
+          <NotificationBell />
+          <form action={logout}>
+            <button
+              type="submit"
+              className="rounded-lg bg-red-600 px-4 py-2 text-white hover:bg-red-700 transition-colors cursor-pointer"
+            >
+              Sign out
+            </button>
+          </form>
+        </div>
       </div>
 
       <div className="max-w-7xl mx-auto space-y-8">
