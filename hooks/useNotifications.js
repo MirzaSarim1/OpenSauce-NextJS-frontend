@@ -1,82 +1,82 @@
 'use client'
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
+import Pusher from 'pusher-js'
 import { getUnreadCount } from '@/lib/actions/notification'
 
-const POLL_INTERVAL = 10000
+let pusherInstance = null
+
+function getPusherClient() {
+  if (!pusherInstance) {
+    pusherInstance = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY, {
+      cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER,
+    })
+  }
+  return pusherInstance
+}
 
 export function useNotifications() {
   const { data: session } = useSession()
   const [notifications, setNotifications] = useState([])
   const [unreadCount, setUnreadCount] = useState(0)
   const [isConnected, setIsConnected] = useState(false)
-  const [connectionType, setConnectionType] = useState('polling')
-  
-  const intervalRef = useRef(null)
-  const lastFetchRef = useRef(new Date().toISOString())
 
   useEffect(() => {
     if (!session?.user) return
-
-    async function fetchInitialCount() {
-      const { count } = await getUnreadCount()
-      setUnreadCount(count || 0)
-    }
-
-    fetchInitialCount()
+    getUnreadCount().then(({ count }) => setUnreadCount(count || 0))
   }, [session?.user])
-
-  const fetchNotifications = useCallback(async () => {
-    try {
-      const response = await fetch(
-        `/api/notifications/latest?since=${lastFetchRef.current}`
-      )
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch notifications')
-      }
-
-      const data = await response.json()
-      
-      if (data.success) {
-        if (data.notifications.length > 0) {
-          setNotifications((prev) => {
-            const newNotifications = data.notifications.filter(
-              (n) => !prev.find((existing) => existing.id === n.id)
-            )
-            return [...newNotifications, ...prev]
-          })
-          
-          lastFetchRef.current = new Date().toISOString()
-        }
-        
-        setUnreadCount(data.unreadCount)
-        setIsConnected(true)
-      }
-    } catch (error) {
-      console.error('Error polling notifications:', error)
-      setIsConnected(false)
-    }
-  }, [])
 
   useEffect(() => {
     if (!session?.user?.id) return
 
-    fetchNotifications()
+    const pusher = getPusherClient()
+    const channelName = `user-${session.user.id}`
+    const channel = pusher.subscribe(channelName)
 
-    intervalRef.current = setInterval(fetchNotifications, POLL_INTERVAL)
+    const onConnected = () => setIsConnected(true)
+    const onDisconnected = () => setIsConnected(false)
+
+    pusher.connection.bind('connected', onConnected)
+    pusher.connection.bind('disconnected', onDisconnected)
+    pusher.connection.bind('error', onDisconnected)
+
+    if (pusher.connection.state === 'connected') setIsConnected(true)
+
+    channel.bind('new-notification', (notification) => {
+      setNotifications((prev) =>
+        prev.some((n) => n.id === notification.id) ? prev : [notification, ...prev]
+      )
+      setUnreadCount((prev) => prev + 1)
+    })
+
+    channel.bind('notification-read', ({ notificationId }) => {
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === notificationId ? { ...n, read: true } : n))
+      )
+      setUnreadCount((prev) => Math.max(0, prev - 1))
+    })
+
+    channel.bind('all-notifications-read', () => {
+      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })))
+      setUnreadCount(0)
+    })
+
+    channel.bind('notification-deleted', ({ notificationId }) => {
+      setNotifications((prev) => prev.filter((n) => n.id !== notificationId))
+    })
 
     return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current)
-      }
+      channel.unbind_all()
+      pusher.unsubscribe(channelName)
+      pusher.connection.unbind('connected', onConnected)
+      pusher.connection.unbind('disconnected', onDisconnected)
+      pusher.connection.unbind('error', onDisconnected)
     }
-  }, [session?.user?.id, fetchNotifications])
+  }, [session?.user?.id])
 
   const refreshUnreadCount = useCallback(async () => {
     if (!session?.user) return
-    
     const { count } = await getUnreadCount()
     setUnreadCount(count || 0)
   }, [session?.user])
@@ -85,17 +85,12 @@ export function useNotifications() {
     setNotifications((prev) => prev.filter((n) => n.id !== notificationId))
   }, [])
 
-  const refresh = useCallback(() => {
-    fetchNotifications()
-  }, [fetchNotifications])
-
   return {
     notifications,
     unreadCount,
     isConnected,
-    connectionType,
     refreshUnreadCount,
     removeNotification,
-    refresh,
+    refresh: refreshUnreadCount,
   }
 }
