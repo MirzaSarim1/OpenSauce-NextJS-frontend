@@ -1,6 +1,8 @@
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { notFound } from "next/navigation"
+import FollowButton from "@/app/components/FollowButton"
+import { checkIsFollowing } from "@/lib/actions/follow"
 import Link from "next/link"
 import Image from "next/image"
 
@@ -46,11 +48,17 @@ export default async function PublicProfilePage({ params }) {
 
   const isOwnProfile = session?.user?.id === user.id
 
+  let isFollowing = false
+  if (session?.user && !isOwnProfile) {
+    const result = await checkIsFollowing(user.id)
+    isFollowing = result.isFollowing
+  }
+
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900">
       <div className="mx-auto max-w-6xl px-4 py-8">
         <div className="mb-8 flex items-center justify-between">
-          <Link 
+          <Link
             href="/"
             className="text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white"
           >
@@ -72,8 +80,8 @@ export default async function PublicProfilePage({ params }) {
             <div className="flex items-center gap-6">
               <div className="relative">
                 {user.image ? (
-                  <Image 
-                    src={user.image} 
+                  <Image
+                    src={user.image}
                     alt={user.name}
                     width={96}
                     height={96}
@@ -95,8 +103,16 @@ export default async function PublicProfilePage({ params }) {
                 <p className="mt-1 text-orange-100">
                   {user.email}
                 </p>
-                <div className="mt-2 inline-block rounded-full bg-white/20 px-3 py-1 text-sm font-medium text-white">
-                  {user.role}
+                <div className="mt-2 flex items-center gap-3">
+                  <div className="inline-block rounded-full bg-white/20 px-3 py-1 text-sm font-medium text-white">
+                    {user.role}
+                  </div>
+                  {!isOwnProfile && session?.user && (
+                    <FollowButton
+                      userId={user.id}
+                      initialIsFollowing={isFollowing}
+                    />
+                  )}
                 </div>
               </div>
             </div>
@@ -158,9 +174,9 @@ export default async function PublicProfilePage({ params }) {
 
           <div className="border-t border-zinc-200 px-6 py-4 dark:border-zinc-700">
             <p className="text-sm text-zinc-600 dark:text-zinc-400">
-              Member since {new Date(user.createdAt).toLocaleDateString('en-US', { 
-                month: 'long', 
-                year: 'numeric' 
+              Member since {new Date(user.createdAt).toLocaleDateString('en-US', {
+                month: 'long',
+                year: 'numeric'
               })}
             </p>
           </div>
