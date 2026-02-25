@@ -39,6 +39,7 @@ enum NotificationType {
   FOLLOW
   FAVORITE
   REVIEW
+  NEW_RECIPE
   SYSTEM
 }
 
