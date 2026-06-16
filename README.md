@@ -354,7 +354,3 @@ Your Name - [GitHub Profile]
 - Prisma team for the excellent ORM
 - NextAuth.js team for authentication solution
 - Vercel for hosting and deployment platform
-
----
-
-**Happy Coding! 🚀**
